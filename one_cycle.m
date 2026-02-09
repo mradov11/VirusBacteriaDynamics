@@ -1,18 +1,17 @@
-function graph = one_cycle(p, gamma, pars, t0, tf, x0)
+function [R, S, E, I, L, V] = one_cycle(p, gamma, pars, t0, tf, x0)
 
-pars.p = p
-pars.gamma = gamma
+    pars.p = p;
+    pars.gamma = gamma;
 
-opts = odeset('NonNegative', 1:6);
-[t, x] = ode45(@(t,x) growth(t,x,pars), [t0 tf], x0, opts);
+    opts = odeset('NonNegative', 1:6);
+    [t, x] = ode45(@(t,x) growth(t,x,pars), [t0 tf], x0, opts);
 
-figure
-plot(t, x, 'LineWidth', 2)
-xlabel('Time (hr)', 'FontSize', 20)
-ylabel('Concentration / Number', 'FontSize', 20)
-legend({'R','S','E','I','L','V'}, 'FontSize', 14)
-set(gca, 'YScale', 'log', 'FontSize', 20)
-hold on
-yline(1e-3,'r:','LineWidth',2)
+    % extract final values
+    R = x(end,1);
+    S = x(end,2);
+    E = x(end,3);
+    I = x(end,4);
+    L = x(end,5);
+    V = x(end,6);
 
 end
