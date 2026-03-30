@@ -93,6 +93,7 @@ for strat = 1:3
                 x0(6) = V0;       % update V
 
                 % Solve ODE
+                opts = odeset('NonNegative', 1:6);
                 [t, x] = ode45(@(t,x) growth(t,x,pars), [t0 tf], x0, opts);
 
                 R = x(:,1);
@@ -146,8 +147,12 @@ end
 
 disp(datatable)
 
-% sort the table by time. look for cases where, for all three stretegies, the
+% sort the table by time. look for cases where, for all three strategies, the
 % resources last for a long time (14 to 15 hours at least). Look at the plots
+
+datatable.isnan_flag = isnan(datatable.t_R_1e2);
+datatable = sortrows(datatable, {'isnan_flag','t_R_1e2'}, {'descend','descend'});
+disp(datatable)
 
 %% Make figure 2, which will display the state of the variables over the course of multiple cycles:
 
