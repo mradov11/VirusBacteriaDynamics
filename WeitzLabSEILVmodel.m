@@ -355,8 +355,8 @@ yline(1e-3,'r:','LineWidth',2)
 params;
 
 % Parameter values
-pVals     = [0.25 0.5 0.75 1];
-gammaVals = [1e-6 1e-4 1e-2 1e-1];
+pVals     = 0:0.1:1;
+gammaVals = 10.^(-6:0.5:-1);
 RetaVals  = [0 10 100 1000];
 
 nPassages = 4;
@@ -366,14 +366,15 @@ outdir = fullfile('~/Desktop/results multicycle');
 mkdir(outdir);
 
 % Loop through parameter combinations
-for ip = 1:length(pVals)
+parfor ip = 1:length(pVals)
     for ig = 1:length(gammaVals)
         for ir = 1:length(RetaVals)
 
             % Set parameters
-            pars.p     = pVals(ip);
-            pars.gamma = gammaVals(ig);
-            pars.Reta  = RetaVals(ir);
+            pars_local = pars;
+            pars_local.p     = pVals(ip);
+            pars_local.gamma = gammaVals(ig);
+            pars_local.Reta  = RetaVals(ir);
 
             % Initialize storage
             Tall = [];
@@ -386,7 +387,7 @@ for ip = 1:length(pVals)
             % Passage loop
             for k = 1:nPassages
 
-                [t, x] = ode45(@(t,x) growth(t,x,pars), [t0 tf], x0_curr, opts);
+                [t, x] = ode45(@(t,x) growth(t,x,pars_local), [t0 tf], x0_curr, opts);
 
                 % Shift time
                 t = t + tShift;
@@ -417,16 +418,15 @@ for ip = 1:length(pVals)
             set(gca, 'YScale', 'log', 'FontSize', 20)
             hold on
             yline(1e-3,'r:','LineWidth',2)
-            title(sprintf(['Multicycle Run\n' ...
-                'R0=%g, S0=%g, V0=%g, p=%.2f, gamma=%.0e, Reta=%g'], ...
+            title(sprintf(['R0=%g, S0=%g, V0=%g, p=%.2f, gamma=%.0e, Reta=%g'], ...
                 x0(1), x0(2), x0(6), ...
-                pars.p, pars.gamma, pars.Reta))
+                pars_local.p, pars_local.gamma, pars_local.Reta))
 
             % Create filename
             filename = sprintf( ...
                 'multicycle_R0_%g_S0_%g_V0_%g_p_%0.2f_gamma_%0.0e_Reta_%g.png', ...
                 x0(1), x0(2), x0(6), ...
-                pars.p, pars.gamma, pars.Reta);
+                pars_local.p, pars_local.gamma, pars_local.Reta);
             fullFile = fullfile(outdir, filename);
 
             % Save figure
