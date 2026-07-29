@@ -1,4 +1,4 @@
-function [R, S, E, I, L, V] = one_cycle(p, gamma, pars, t0, tf, x0)
+function [t, x, R, S, E, I, L, V] = one_cycle(p, gamma, pars, t0, tf, x0)
 
     pars.p = p;
     pars.gamma = gamma;

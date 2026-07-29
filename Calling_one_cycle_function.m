@@ -2,8 +2,9 @@ params;
 
 % create a table to store the data
 p_vals     = 0:0.01:1;
-gamma_vals = 10.^(-6:-1);
+gamma_vals = 10.^(-6:1:-1);
 nRuns = length(p_vals) * length(gamma_vals);
+
 % preallocate storage
 p_store     = zeros(nRuns,1);
 gamma_store = zeros(nRuns,1);
@@ -16,14 +17,12 @@ V_store     = zeros(nRuns,1);
 row = 1;
 
 % call the function one_cycle for various values of p and gamma
-for index = 0:0.01:1
-    p = index;
+for p = p_vals
 
-    for number = -6:1:-1
-        gamma = 10^number;
+    for gamma = gamma_vals
 
         % run one cycle and capture outputs
-        [R,S,E,I,L,V] = one_cycle(p, gamma, pars, t0, tf, x0);
+        [~, ~, R, S, E, I, L, V] = one_cycle(p, gamma, pars, t0, tf, x0);
 
         % store results
         p_store(row)     = p;
@@ -72,6 +71,9 @@ title('Heatmap of R')
 colorbar
 
 %% 10 percent of viruses passed only, 10 cycles
+clear all
+params;
+
 nCycles = 10;
 
 p_vals     = 0:0.01:1;
@@ -92,7 +94,7 @@ for p = p_vals
 
         for c = 1:nCycles
 
-            [R,S,E,I,L,V] = one_cycle(p, gamma, pars, t0, tf, x_current);
+            [~,~,R,S,E,I,L,V] = one_cycle(p, gamma, pars, t0, tf, x_current);
 
             % 10% viruses passed only
             x_current = [
@@ -127,6 +129,9 @@ disp('10% Virus Only Passed:')
 disp([opt_p_Vvirus opt_gamma_Vvirus maxV])
 
 %% %% 10 percent of lysogens passed only, 10 cycles
+clear all
+params;
+
 nCycles = 10;
 
 p_vals     = 0:0.01:1;
@@ -147,7 +152,7 @@ for p = p_vals
 
         for c = 1:nCycles
 
-            [R,S,E,I,L,V] = one_cycle(p, gamma, pars, t0, tf, x_current);
+            [~,~,R,S,E,I,L,V] = one_cycle(p, gamma, pars, t0, tf, x_current);
 
             % 10% lysogens passed only
             x_current = [
@@ -174,9 +179,9 @@ end
 results_lysogensOnly = table(p_store, gamma_store, V_store, L_store);
 
 % Find optimum
-[maxV, idxV] = max(V_store, [], 'omitnan');
-opt_p_Vvirus = p_store(idxV);
-opt_gamma_Vvirus = gamma_store(idxV);
+[maxL, idxL] = max(L_store, [], 'omitnan');
+opt_p_Lvirus = p_store(idxL);
+opt_gamma_Lvirus = gamma_store(idxL);
 
 disp('10% Lysogens Only Passed:')
-disp([opt_p_Vvirus opt_gamma_Vvirus maxV])
+disp([opt_p_Lvirus opt_gamma_Lvirus maxL])

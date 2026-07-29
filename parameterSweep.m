@@ -1,9 +1,10 @@
-function results = parameter_sweep(pars, t0, tf, x0)
+function results = parameterSweep(pars, t0, tf, x0)
 
 % create a table to store the data
 p_vals     = 0:0.01:1;
-gamma_vals = 10.^(-6:-1);
+gamma_vals = 10.^(-6:1:-1);
 nRuns = length(p_vals) * length(gamma_vals);
+
 % preallocate storage
 p_store     = zeros(nRuns,1);
 gamma_store = zeros(nRuns,1);
@@ -16,14 +17,12 @@ V_store     = zeros(nRuns,1);
 row = 1;
 
 % call the function one_cycle for various values of p and gamma
-for index = 0:0.01:1
-    p = index;
+for p = p_vals
 
-    for number = -6:1:-1
-        gamma = 10^number;
+    for gamma = gamma_vals;
 
         % run one cycle and capture outputs
-        [R,S,E,I,L,V] = one_cycle(p, gamma, pars, t0, tf, x0);
+        [~,~,R,S,E,I,L,V] = one_cycle(p, gamma, pars, t0, tf, x0);
 
         % store results
         p_store(row)     = p;

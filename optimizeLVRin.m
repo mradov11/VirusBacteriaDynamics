@@ -1,3 +1,4 @@
+clear all;
 params;
 
 Rin_values = [0, 4, 40, 400];
@@ -9,12 +10,12 @@ for r = 1:length(Rin_values)
     results = parameterSweep(pars, t0, tf, x0);
 
     % Find max L
-    [maxL, idxL] = max(L_store, [], 'omitnan');
+    [maxL, idxL] = max(results.L, [], 'omitnan');
     pL     = results.p(idxL);
     gammaL = results.gamma(idxL);
 
     % Find max V
-    [maxV, idxV] = max(V_store, [], 'omitnan');
+    [maxV, idxV] = max(results.V, [], 'omitnan');
     pV     = results.p(idxV);
     gammaV = results.gamma(idxV);
 

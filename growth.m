@@ -10,12 +10,12 @@ function dxdt = growth(t, x, pars)
     psi = pars.umax * R / (pars.Rin + R);
 
     % Lysis function
-    eta = pars.eta0 * R / (pars.Rin + R);
+    eta = pars.eta0 * R / (pars.Reta + R);
     %eta = pars.eta0;
 
     % Differential equations:
     % Resource
-    dRdt = -pars.e * psi * (S + E + I + L) + pars.J;
+    dRdt = -pars.e * psi * (S + E + I + L) + pars.J + eta*I*(pars.e)*(0.5);
     % Susceptible
     dSdt = psi*S - pars.phi*S*V - pars.ds*S;
     % Exposed

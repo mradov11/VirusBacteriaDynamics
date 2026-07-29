@@ -1,43 +1,9 @@
 %% SEILV Model
 params;
 
-function dxdt = growth(t, x, pars)
-    R = x(1);   % resource
-    S = x(2);   % susceptible bacteria
-    E = x(3);   % exposed cells
-    I = x(4);   % lytically infected cells
-    L = x(5);   % lysogens
-    V = x(6);   % free virus
-
-    % Growth function ψ(R)
-    psi = pars.umax * R / (pars.Rin + R);
-
-    % Lysis function
-    eta = pars.eta0 * R / (pars.Reta + R);
-    %eta = pars.eta0;
-
-    % Differential equations:
-    % Resource
-    dRdt = -pars.e * psi * (S + E + I + L) + pars.J + eta*I*(pars.e)*(0.5);
-    % Susceptible
-    dSdt = psi*S - pars.phi*S*V - pars.ds*S;
-    % Exposed
-    dEdt = pars.phi*S*V - pars.lambda*E - pars.de*E;
-    % Lytically infected
-    dIdt = (1 - pars.p)*pars.lambda*E + pars.gamma*L - eta*I - pars.di*I;
-    % Lysogens
-    dLdt = pars.p*pars.lambda*E + psi*L - pars.gamma*L - pars.dl*L;
-    % Virus
-    dVdt = pars.beta*eta*I - pars.phi*V*(S + E + I + L) - pars.m*V;
-
-    % Output
-    dxdt = [dRdt; dSdt; dEdt; dIdt; dLdt; dVdt];
-end
-
 % Make a figure that displays the change in the variables over the course
 % of one cycle
-opts = odeset('NonNegative', 1:6);
-[t, x] = ode45(@(t,x) growth(t,x,pars), [t0 tf], x0, opts);
+[t, x] = one_cycle(pars.p, pars.gamma, pars, t0, tf, x0);
 
 figure
 hold on
@@ -93,8 +59,8 @@ for strat = 1:3
                 x0(6) = V0;       % update V
 
                 % Solve ODE
-                opts = odeset('NonNegative', 1:6);
-                [t, x] = ode45(@(t,x) growth(t,x,pars), [t0 tf], x0, opts);
+                [t, x, R_final, S_final, E_final, I_final, L_final, V_final] = ...
+                    one_cycle(pars.p, pars.gamma, pars, t0, tf, x0);
 
                 R = x(:,1);
 
@@ -110,8 +76,7 @@ for strat = 1:3
                 % Save results to table
                 datatable(row,:) = table( ...
                     strat, R0, S0, V0, ...
-                    x(end,1), x(end,2), x(end,3), ...
-                    x(end,4), x(end,5), x(end,6), ...
+                    R_final, S_final, E_final, I_final, L_final, V_final, ...
                     t_hit, ...
                     'VariableNames', ...
                     {'Strategy','R0','S0','V0', ...
@@ -213,12 +178,12 @@ for Reta = R_eta_vals
                 pars.gamma = gamma;       % update gamma
 
                 % Solve ODE
-                opts = odeset('NonNegative', 1:6);
-                [t, x] = ode45(@(t,x) growth(t,x,pars), [t0 tf], x0, opts);
+                [t, x, R_final, S_final, E_final, I_final, L_final, V_final] = ...
+                    one_cycle(p, gamma, pars, t0, tf, x0);
 
                 % Save results to table
                 datatable2(row,:) = table(R0, S0, V0, ...
-                x(end,1), x(end,2), x(end,3), x(end,4), x(end,5), x(end,6), ...
+                R_final, S_final, E_final, I_final, L_final, V_final, ...
                 p, gamma, Reta, 'VariableNames', ...
                 {'R0','S0','V0', 'R_final','S_final','E_final', ...
                 'I_final','L_final','V_final', 'p','gamma','Reta'});
@@ -265,7 +230,7 @@ for k = 1:length(R_eta_vals)
                   datatable2.gamma == gamma_vals(j) & ...
                   datatable2.Reta == R_eta_vals(k);
 
-            Z(j,i) = datatable2.L_final(idx);  % can change variable here
+            Z(j,i) = (datatable2.V_final(idx) + datatable2.L_final(idx));  % can change variable here
         end
     end
     Z_all{k} = Z;
@@ -279,7 +244,7 @@ cmax = max(all_vals(:));
 % Plot all 3 in one figure, shared scale
 figure;
 for k = 1:length(R_eta_vals)
-    subplot(1,3,k)
+    subplot(1,length(R_eta_vals),k)
 
     imagesc(p_vals, log10(gamma_vals), Z_all{k});
     set(gca,'YDir','normal', 'ColorScale','log');
@@ -322,8 +287,8 @@ tShift = 0;
 % Loop through cycles
 for k = 1:nPassages
 
-    [t, x] = ode45(@(t,x) growth(t,x,pars), [t0 tf], x0, opts);
-
+    [t, x] = one_cycle(pars_local.p, pars_local.gamma, pars_local, t0, tf, x0_curr);
+    
     t = t + tShift;      % Shift time so passages are sequential
 
     % Add results to the matrices
