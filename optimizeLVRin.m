@@ -7,7 +7,10 @@ for r = 1:length(Rin_values)
 
     pars.Rin = Rin_values(r);
 
-    results = parameterSweep(pars, t0, tf, x0);
+    p_vals     = 0:0.01:1;
+    gamma_vals = 10.^(-6:1:-1);
+
+    [results, p_vals, gamma_vals] = p_gamma_parameterSweep(pars, t0, tf, x0, p_vals, gamma_vals);
 
     % Find max L
     [maxL, idxL] = max(results.L, [], 'omitnan');

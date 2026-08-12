@@ -1,13 +1,19 @@
 params;
 
+addpath(pwd)
+
+% Create folder to save graphs to
+outdir = fullfile('~/Desktop/parfor_results');
+mkdir(outdir)
+
 % Parameter values
-pVals     = [0.25 0.5 0.75 1];
-gammaVals = [1e-6 1e-4 1e-2 1e-1];
-RetaVals  = [0 10 100 1000];
+pVals     = 0:0.1:1;
+gammaVals = 10.^(-6:0.5:-1);
+RetaVals  = [0, 10, 100, 1000];
 
-nPassages = 1;
+%nPassages = 1;
 
-poolobj = parpool(10)
+poolobj = parpool(10);
 
 % Loop through parameter combinations
 parfor ip = 1:length(pVals)
@@ -20,7 +26,7 @@ parfor ip = 1:length(pVals)
             Params.gamma = gammaVals(ig);
             Params.Reta  = RetaVals(ir);
 
-            [t, x] = one_cycle(Params.p, Params.gamma, Params, t0, tf, x0);
+            [t, x] = one_cycle(Params.p, Params.gamma, Params.Reta, Params, t0, tf, x0);
 
             % Create filename
             filename = sprintf( ...
@@ -28,7 +34,9 @@ parfor ip = 1:length(pVals)
                 x0(1), x0(2), x0(6), Params.p, Params.gamma, Params.Reta);
 
             % Save figure
-            parsave(filename, t, x)
+            fullFile = fullfile(outdir, filename);
+            parsave(fullFile, t, x)
+
         end
     end
 end
@@ -43,7 +51,7 @@ delete(poolobj)
             % Passage loop
             for k = 1:nPassages
 
-                [t, x] = one_cycle(Params.p, Params.gamma, Params, t0, tf, x0);
+                [t, x] = one_cycle(Params.p, Params.gamma, Params.Reta, Params, t0, tf, x0);
 
                 % Shift time
                 t = t + tShift;

@@ -1,7 +1,8 @@
-function [t, x, R, S, E, I, L, V] = one_cycle(p, gamma, pars, t0, tf, x0)
+function [t, x, R, S, E, I, L, V] = one_cycle(p, gamma, Reta, pars, t0, tf, x0)
 
     pars.p = p;
     pars.gamma = gamma;
+    pars.Reta = Reta;
 
     opts = odeset('NonNegative', 1:6);
     [t, x] = ode45(@(t,x) growth(t,x,pars), [t0 tf], x0, opts);

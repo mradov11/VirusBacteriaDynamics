@@ -18,12 +18,12 @@ pars.m      = 1/24;       % viral decay rate
 pars.J      = 0;           % flow rate (1, 10, or 100)
 
 %Lytic
-pars.p      = 0;        % integration probability (changed depending on lytic/lysogenic/temprate)
-pars.gamma  = 0;        % induction rate (changed depending on lytic/lysogenic/temprate)
+pars.p      = 0;        % integration probability 
+pars.gamma  = 0;        % induction rate 
 
 %Temprate
-%pars.p      = 0.5;        % integration probability (changed depending on lytic/lysogenic/temprate)
-%pars.gamma  = 0.05;        % induction rate (changed depending on lytic/lysogenic/temprate)
+%pars.p      = 0.5;        % integration probability 
+%pars.gamma  = 0.05;        % induction rate 
 
 R0 = 1e4
 S0 = 1e3
